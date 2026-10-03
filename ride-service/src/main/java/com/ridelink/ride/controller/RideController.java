@@ -1,8 +1,11 @@
 package com.ridelink.ride.controller;
 
+import com.ridelink.ride.dto.CreateRideRequest;
 import com.ridelink.ride.model.Ride;
 import com.ridelink.ride.service.RideService;
+
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,68 +21,44 @@ public class RideController {
         this.rideService = rideService;
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "Ride Service is working!";
-    }
-
     @PostMapping
-    public Ride createRide(@Valid @RequestBody Ride ride) {
-        return rideService.createRide(ride);
-    }
-
-    @GetMapping
-    public List<Ride> getAllRides() {
-        return rideService.getAllRides();
+    public ResponseEntity<Ride> create(@Valid @RequestBody CreateRideRequest request) {
+        Ride ride = rideService.requestRide(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ride);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ride> getRideById(@PathVariable Long id) {
-
-        Ride ride = rideService.getRideById(id);
-
-        if (ride == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(ride);
+    public Ride getById(@PathVariable Long id) {
+        return rideService.getRide(id);
     }
 
-    // Get an available driver from Driver & Vehicle Service
-    // and assign that driver to the requested ride
-    @PutMapping("/{id}/assign-driver")
-    public ResponseEntity<Ride> assignDriver(@PathVariable Long id) {
-
-        Ride ride = rideService.assignAvailableDriver(id);
-
-        if (ride == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(ride);
+    @GetMapping
+    public List<Ride> getAll() {
+        return rideService.getAllRides();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Ride> updateRide(
-            @PathVariable Long id,
-            @Valid @RequestBody Ride ride) {
-
-        Ride updatedRide = rideService.updateRide(id, ride);
-
-        if (updatedRide == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(updatedRide);
+    @PostMapping("/{id}/assign")
+    public Ride assignDriver(@PathVariable Long id) {
+        return rideService.assignDriver(id);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRide(@PathVariable Long id) {
+    @PostMapping("/{id}/accept")
+    public Ride accept(@PathVariable Long id) {
+        return rideService.acceptRide(id);
+    }
 
-        if (!rideService.deleteRide(id)) {
-            return ResponseEntity.notFound().build();
-        }
+    @PostMapping("/{id}/start")
+    public Ride start(@PathVariable Long id) {
+        return rideService.startRide(id);
+    }
 
-        return ResponseEntity.noContent().build();
+    @PostMapping("/{id}/complete")
+    public Ride complete(@PathVariable Long id) {
+        return rideService.completeRide(id);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public Ride cancel(@PathVariable Long id) {
+        return rideService.cancelRide(id);
     }
 }

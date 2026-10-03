@@ -1,9 +1,7 @@
 package com.ridelink.ride.model;
 
-import com.ridelink.ride.enums.RideStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import java.time.Instant;
 
 @Entity
 @Table(name = "rides")
@@ -13,103 +11,40 @@ public class Ride {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Passenger ID is required")
-    private String passengerId;
+    private Long passengerId;
+    private Long driverId;              // null until a driver is assigned
 
-    private String driverId;
-
-    @NotBlank(message = "Pickup location is required")
     private String pickupLocation;
-
-    @NotBlank(message = "Dropoff location is required")
-    private String dropoffLocation;
-
-    @Positive(message = "Distance must be greater than 0")
-    private double distance;
-
-    @Positive(message = "Fare must be greater than 0")
-    private double fare;
+    private String destinationLocation;
 
     @Enumerated(EnumType.STRING)
     private RideStatus status;
 
-    public Ride() {
-    }
+    private Instant createdAt;
+    private Instant updatedAt;
 
-    public Ride(Long id, String passengerId, String driverId,
-                String pickupLocation, String dropoffLocation,
-                double distance, double fare, RideStatus status) {
-        this.id = id;
-        this.passengerId = passengerId;
-        this.driverId = driverId;
-        this.pickupLocation = pickupLocation;
-        this.dropoffLocation = dropoffLocation;
-        this.distance = distance;
-        this.fare = fare;
-        this.status = status;
-    }
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getPassengerId() { return passengerId; }
+    public void setPassengerId(Long passengerId) { this.passengerId = passengerId; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getDriverId() { return driverId; }
+    public void setDriverId(Long driverId) { this.driverId = driverId; }
 
-    public String getPassengerId() {
-        return passengerId;
-    }
+    public String getPickupLocation() { return pickupLocation; }
+    public void setPickupLocation(String pickupLocation) { this.pickupLocation = pickupLocation; }
 
-    public void setPassengerId(String passengerId) {
-        this.passengerId = passengerId;
-    }
+    public String getDestinationLocation() { return destinationLocation; }
+    public void setDestinationLocation(String destinationLocation) { this.destinationLocation = destinationLocation; }
 
-    public String getDriverId() {
-        return driverId;
-    }
+    public RideStatus getStatus() { return status; }
+    public void setStatus(RideStatus status) { this.status = status; }
 
-    public void setDriverId(String driverId) {
-        this.driverId = driverId;
-    }
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 
-    public String getPickupLocation() {
-        return pickupLocation;
-    }
-
-    public void setPickupLocation(String pickupLocation) {
-        this.pickupLocation = pickupLocation;
-    }
-
-    public String getDropoffLocation() {
-        return dropoffLocation;
-    }
-
-    public void setDropoffLocation(String dropoffLocation) {
-        this.dropoffLocation = dropoffLocation;
-    }
-
-    public double getDistance() {
-        return distance;
-    }
-
-    public void setDistance(double distance) {
-        this.distance = distance;
-    }
-
-    public double getFare() {
-        return fare;
-    }
-
-    public void setFare(double fare) {
-        this.fare = fare;
-    }
-
-    public RideStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(RideStatus status) {
-        this.status = status;
-    }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

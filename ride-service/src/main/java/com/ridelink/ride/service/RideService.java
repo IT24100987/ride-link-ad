@@ -1,11 +1,16 @@
 package com.ridelink.ride.service;
 
 import com.ridelink.ride.client.DriverClient;
-import com.ridelink.ride.enums.RideStatus;
+import com.ridelink.ride.dto.CreateRideRequest;
+import com.ridelink.ride.exception.InvalidRideStatusTransitionException;
+import com.ridelink.ride.exception.NoAvailableDriverException;
+import com.ridelink.ride.exception.RideNotFoundException;
 import com.ridelink.ride.model.Ride;
+import com.ridelink.ride.model.RideStatus;
 import com.ridelink.ride.repository.RideRepository;
-import org.springframework.stereotype.Service;
 
+import org.springframework.stereotype.Service;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -14,124 +19,89 @@ public class RideService {
     private final RideRepository rideRepository;
     private final DriverClient driverClient;
 
-    public RideService(
-            RideRepository rideRepository,
-            DriverClient driverClient) {
-
+    public RideService(RideRepository rideRepository, DriverClient driverClient) {
         this.rideRepository = rideRepository;
         this.driverClient = driverClient;
     }
 
-    public Ride createRide(Ride ride) {
-        // Every new ride starts as REQUESTED
+    public Ride requestRide(CreateRideRequest request) {
+        Ride ride = new Ride();
+        ride.setPassengerId(request.passengerId());
+        ride.setPickupLocation(request.pickupLocation());
+        ride.setDestinationLocation(request.destinationLocation());
         ride.setStatus(RideStatus.REQUESTED);
+        ride.setCreatedAt(Instant.now());
+        ride.setUpdatedAt(Instant.now());
         return rideRepository.save(ride);
     }
 
-    public Ride assignAvailableDriver(Long rideId) {
-
-        Ride ride = rideRepository.findById(rideId).orElse(null);
-
-        if (ride == null) {
-            return null;
-        }
-
-        // A driver can only be assigned to a requested ride
-        if (ride.getStatus() != RideStatus.REQUESTED) {
-            throw new IllegalStateException(
-                    "Driver can only be assigned to a REQUESTED ride"
-            );
-        }
-
-        // Get an available driver from Driver & Vehicle Service
-        Long driverId = driverClient.findAvailableDriver()
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "No available driver found"
-                        )
-                );
-
-        ride.setDriverId(String.valueOf(driverId));
-        ride.setStatus(RideStatus.ASSIGNED);
-
-        return rideRepository.save(ride);
+    public Ride getRide(Long id) {
+        return rideRepository.findById(id)
+                .orElseThrow(() -> new RideNotFoundException(id));
     }
 
     public List<Ride> getAllRides() {
         return rideRepository.findAll();
     }
 
-    public Ride getRideById(Long id) {
-        return rideRepository.findById(id).orElse(null);
+    // REQUESTED -> ASSIGNED : find a driver and attach them to the ride
+    public Ride assignDriver(Long id) {
+        Ride ride = getRide(id);
+        requireStatus(ride, RideStatus.REQUESTED, RideStatus.ASSIGNED);
+
+        Long driverId = driverClient.findAvailableDriver()
+                .orElseThrow(() -> new NoAvailableDriverException(id));
+
+        ride.setDriverId(driverId);
+        return updateStatus(ride, RideStatus.ASSIGNED);
     }
 
-    public Ride updateRide(Long id, Ride updatedRide) {
-
-        Ride existingRide = rideRepository.findById(id).orElse(null);
-
-        if (existingRide == null) {
-            return null;
-        }
-
-        // Check status transition only if the status is changing
-        if (updatedRide.getStatus() != null &&
-                updatedRide.getStatus() != existingRide.getStatus()) {
-
-            if (!isValidStatusTransition(
-                    existingRide.getStatus(),
-                    updatedRide.getStatus())) {
-
-                throw new IllegalStateException(
-                        "Invalid ride status transition from "
-                                + existingRide.getStatus()
-                                + " to "
-                                + updatedRide.getStatus()
-                );
-            }
-        }
-
-        updatedRide.setId(id);
-
-        return rideRepository.save(updatedRide);
+    // ASSIGNED -> ACCEPTED : the assigned driver accepts the ride
+    public Ride acceptRide(Long id) {
+        Ride ride = getRide(id);
+        requireStatus(ride, RideStatus.ASSIGNED, RideStatus.ACCEPTED);
+        return updateStatus(ride, RideStatus.ACCEPTED);
     }
 
-    private boolean isValidStatusTransition(
-            RideStatus currentStatus,
-            RideStatus newStatus) {
-
-        if (currentStatus == null || newStatus == null) {
-            return false;
-        }
-
-        return switch (currentStatus) {
-
-            case REQUESTED ->
-                    newStatus == RideStatus.ASSIGNED ||
-                    newStatus == RideStatus.CANCELLED;
-
-            case ASSIGNED ->
-                    newStatus == RideStatus.ACCEPTED ||
-                    newStatus == RideStatus.CANCELLED;
-
-            case ACCEPTED ->
-                    newStatus == RideStatus.IN_PROGRESS ||
-                    newStatus == RideStatus.CANCELLED;
-
-            case IN_PROGRESS ->
-                    newStatus == RideStatus.COMPLETED ||
-                    newStatus == RideStatus.CANCELLED;
-
-            case COMPLETED, CANCELLED -> false;
-        };
+    // ACCEPTED -> IN_PROGRESS : the ride starts
+    public Ride startRide(Long id) {
+        Ride ride = getRide(id);
+        requireStatus(ride, RideStatus.ACCEPTED, RideStatus.IN_PROGRESS);
+        return updateStatus(ride, RideStatus.IN_PROGRESS);
     }
 
-    public boolean deleteRide(Long id) {
+    // IN_PROGRESS -> COMPLETED : the ride finishes
+    public Ride completeRide(Long id) {
+        Ride ride = getRide(id);
+        requireStatus(ride, RideStatus.IN_PROGRESS, RideStatus.COMPLETED);
+        return updateStatus(ride, RideStatus.COMPLETED);
+    }
 
-        if (!rideRepository.existsById(id)) {
-            return false;
+    // REQUESTED / ASSIGNED / ACCEPTED -> CANCELLED : cancel before the ride starts
+    public Ride cancelRide(Long id) {
+        Ride ride = getRide(id);
+        RideStatus current = ride.getStatus();
+        boolean cancellable = current == RideStatus.REQUESTED
+                || current == RideStatus.ASSIGNED
+                || current == RideStatus.ACCEPTED;
+        if (!cancellable) {
+            throw new InvalidRideStatusTransitionException(current, RideStatus.CANCELLED);
         }
+        return updateStatus(ride, RideStatus.CANCELLED);
+    }
 
-        rideRepository.deleteById(id);
-        return true;
+    // --- helpers ---
+
+    // Guard: the ride must be in `expected` before it can move to `target`.
+    private void requireStatus(Ride ride, RideStatus expected, RideStatus target) {
+        if (ride.getStatus() != expected) {
+            throw new InvalidRideStatusTransitionException(ride.getStatus(), target);
+        }
+    }
+
+    private Ride updateStatus(Ride ride, RideStatus newStatus) {
+        ride.setStatus(newStatus);
+        ride.setUpdatedAt(Instant.now());
+        return rideRepository.save(ride);
     }
 }

@@ -1,27 +1,48 @@
 {
   "info": {
-    "_postman_id": "fb31351e-440c-4dbb-af33-429c7a95f118",
     "name": "RideLink - Ride Management Service",
-    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "58018834",
-    "_collection_link": "https://go.postman.co/collection/58018834-fb31351e-440c-4dbb-af33-429c7a95f118?source=collection_link"
+    "description": "Postman collection for RideLink Ride Management Service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
       "name": "01 - Create Ride",
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8083/api/rides",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "rides"
+          ]
+        },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"passengerId\": \"P300\",\n  \"pickupLocation\": \"Colombo\",\n  \"dropoffLocation\": \"Galle\",\n  \"distance\": 125.0,\n  \"fare\": 9000\n}",
+          "raw": "{\n  \"passengerId\": 100,\n  \"pickupLocation\": \"Colombo\",\n  \"destinationLocation\": \"Kandy\"\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
-        },
+        }
+      }
+    },
+    {
+      "name": "02 - Get All Rides",
+      "request": {
+        "method": "GET",
+        "header": [],
         "url": {
           "raw": "http://localhost:8083/api/rides",
           "protocol": "http",
@@ -34,25 +55,15 @@
             "rides"
           ]
         }
-      },
-      "response": []
+      }
     },
     {
-      "name": "02 - Assign Driver",
+      "name": "03 - Get Ride by ID",
       "request": {
-        "method": "PUT",
+        "method": "GET",
         "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
         "url": {
-          "raw": "http://localhost:8083/api/rides/6/assign-driver",
+          "raw": "http://localhost:8083/api/rides/1",
           "protocol": "http",
           "host": [
             "localhost"
@@ -61,199 +72,189 @@
           "path": [
             "api",
             "rides",
-            "6",
-            "assign-driver"
+            "1"
           ]
         }
-      },
-      "response": []
+      }
     },
     {
-      "name": "03 - Accept Ride",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"passengerId\": \"P300\",\n  \"driverId\": \"1\",\n  \"pickupLocation\": \"Colombo\",\n  \"dropoffLocation\": \"Galle\",\n  \"distance\": 125.0,\n  \"fare\": 9000,\n  \"status\": \"ACCEPTED\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8083/api/rides/6",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8083",
-          "path": [
-            "api",
-            "rides",
-            "6"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "04 - Start Ride",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"passengerId\": \"P300\",\n  \"driverId\": \"1\",\n  \"pickupLocation\": \"Colombo\",\n  \"dropoffLocation\": \"Galle\",\n  \"distance\": 125.0,\n  \"fare\": 9000,\n  \"status\": \"IN_PROGRESS\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8083/api/rides/6",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8083",
-          "path": [
-            "api",
-            "rides",
-            "6"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "05 - Complete Ride",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"passengerId\": \"P300\",\n  \"driverId\": \"1\",\n  \"pickupLocation\": \"Colombo\",\n  \"dropoffLocation\": \"Galle\",\n  \"distance\": 125.0,\n  \"fare\": 9000,\n  \"status\": \"COMPLETED\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8083/api/rides/6",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8083",
-          "path": [
-            "api",
-            "rides",
-            "6"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "06 - Invalid Transition",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"passengerId\": \"P300\",\n  \"driverId\": null,\n  \"pickupLocation\": \"Colombo\",\n  \"dropoffLocation\": \"Galle\",\n  \"distance\": 125.0,\n  \"fare\": 9000,\n  \"status\": \"COMPLETED\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8083/api/rides/7",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8083",
-          "path": [
-            "api",
-            "rides",
-            "7"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "07 - Cancel Ride",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"passengerId\": \"P300\",\n  \"driverId\": null,\n  \"pickupLocation\": \"Colombo\",\n  \"dropoffLocation\": \"Galle\",\n  \"distance\": 125.0,\n  \"fare\": 9000,\n  \"status\": \"CANCELLED\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8083/api/rides/7",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8083",
-          "path": [
-            "api",
-            "rides",
-            "7"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "08 - Validation Test",
+      "name": "04 - Assign Driver",
       "request": {
         "method": "POST",
         "header": [],
+        "url": {
+          "raw": "http://localhost:8083/api/rides/1/assign",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "rides",
+            "1",
+            "assign"
+          ]
+        }
+      }
+    },
+    {
+      "name": "05 - Accept Ride",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8083/api/rides/1/accept",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "rides",
+            "1",
+            "accept"
+          ]
+        }
+      }
+    },
+    {
+      "name": "06 - Start Ride",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8083/api/rides/1/start",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "rides",
+            "1",
+            "start"
+          ]
+        }
+      }
+    },
+    {
+      "name": "07 - Complete Ride",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8083/api/rides/1/complete",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "rides",
+            "1",
+            "complete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "08 - Create Ride for Cancellation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8083/api/rides",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "rides"
+          ]
+        },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"passengerId\": \"P400\",\n  \"pickupLocation\": \"Colombo\",\n  \"dropoffLocation\": \"Galle\",\n  \"distance\": 125.0,\n  \"fare\": -100\n}",
+          "raw": "{\n  \"passengerId\": 200,\n  \"pickupLocation\": \"Colombo\",\n  \"destinationLocation\": \"Galle\"\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
+        }
+      }
+    },
+    {
+      "name": "09 - Cancel Ride",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8083/api/rides/2/cancel",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "rides",
+            "2",
+            "cancel"
+          ]
+        }
+      }
+    },
+    {
+      "name": "10 - Validation Test",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8083/api/rides",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "rides"
+          ]
         },
-        "url": {
-          "raw": "http://localhost:8083/api/rides",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8083",
-          "path": [
-            "api",
-            "rides"
-          ]
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"passengerId\": 300,\n  \"pickupLocation\": \"\",\n  \"destinationLocation\": \"Galle\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         }
-      },
-      "response": []
+      }
     },
     {
-      "name": "09 - Get Ride by ID",
+      "name": "11 - Ride Not Found Test",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8083/api/rides/6",
+          "raw": "http://localhost:8083/api/rides/99999",
           "protocol": "http",
           "host": [
             "localhost"
@@ -262,39 +263,18 @@
           "path": [
             "api",
             "rides",
-            "6"
+            "99999"
           ]
         }
-      },
-      "response": []
+      }
     },
     {
-      "name": "10 - Get All Rides",
+      "name": "12 - Invalid Transition Test",
       "request": {
-        "method": "GET",
+        "method": "POST",
         "header": [],
         "url": {
-          "raw": "http://localhost:8083/api/rides",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8083",
-          "path": [
-            "api",
-            "rides"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "11 - Delete Ride",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8083/api/rides/7",
+          "raw": "http://localhost:8083/api/rides/1/start",
           "protocol": "http",
           "host": [
             "localhost"
@@ -303,32 +283,11 @@
           "path": [
             "api",
             "rides",
-            "7"
+            "1",
+            "start"
           ]
         }
-      },
-      "response": []
-    },
-    {
-      "name": "12 - Verify Deleted Ride",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8083/api/rides/7",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8083",
-          "path": [
-            "api",
-            "rides",
-            "7"
-          ]
-        }
-      },
-      "response": []
+      }
     }
   ]
 }
