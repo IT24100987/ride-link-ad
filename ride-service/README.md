@@ -29,7 +29,7 @@ http://localhost:8083
 Database used:
 
 ```text
-RideLinkDB
+ridelink_ride
 ```
 
 The database password is provided using the `DB_PASSWORD` environment variable and is not stored directly in the source code.
@@ -61,10 +61,11 @@ Invalid status transitions are rejected by the service.
 | POST | `/api/rides` | Create a new ride |
 | GET | `/api/rides` | Get all rides |
 | GET | `/api/rides/{id}` | Get a ride by ID |
-| PUT | `/api/rides/{id}` | Update a ride |
-| DELETE | `/api/rides/{id}` | Delete a ride |
-| PUT | `/api/rides/{id}/assign-driver` | Assign an available driver |
-| GET | `/api/rides/test` | Test the Ride Service |
+| POST | `/api/rides/{id}/accept` | Accept an assigned ride |
+| POST | `/api/rides/{id}/start` | Start an accepted ride |
+| POST | `/api/rides/{id}/assign` | Assign an available driver |
+| POST | `/api/rides/{id}/complete` | Complete an in-progress ride |
+| POST | `/api/rides/{id}/cancel` | Cancel an eligible ride |
 
 ## Driver Service Integration
 
@@ -85,7 +86,7 @@ GET /api/drivers/available
 When:
 
 ```text
-PUT /api/rides/{id}/assign-driver
+POST /api/rides/{id}/assign
 ```
 
 is called, the Ride Management Service requests an available driver from the Driver & Vehicle Service.
@@ -106,7 +107,7 @@ http://localhost:8083/swagger-ui/index.html
 
 ## Run the Service
 
-Make sure SQL Server is running and `RideLinkDB` exists.
+Make sure SQL Server is running and `ridelink_ride` exists.
 
 Run:
 
